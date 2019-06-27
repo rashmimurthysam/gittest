@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. -->
+<project basedir="." default="build" name="LifeInsuranceManagement">
+	<property file="build.properties" />
+	<property file="${user.home}/build.properties" />
+	<property name="build.home" value="${basedir}/build" />
+	<property name="war.home" value="${build.home}/war" />
+	<property environment="env" />
+	<property name="debuglevel" value="source,lines,vars" />
+	<property name="target" value="1.7" />
+	<property name="source" value="1.7" />
+	<property name="lifeinsurancemgmt.jar" value="${build.home}/lib/lifeinsurancemgmt.jar" />
+	<property name="webapp.home" value="${basedir}/WebContent" />
+	<path id="Web App Libraries.libraryclasspath">
+		<pathelement location="WebContent/WEB-INF/lib/mysql-connector-java-8.0.16-bin.jar" />
+		<pathelement location="WebContent/WEB-INF/lib/servlet-api.jar" />
+		<pathelement location="WebContent/WEB-INF/classes" />
+	</path>
+	<path id="EAR Libraries.libraryclasspath" />
+	<path id="LifeInsuranceManagement.classpath">
+		<pathelement location="build/classes" />
+		<path refid="Web App Libraries.libraryclasspath" />
+		<path refid="EAR Libraries.libraryclasspath" />
+	</path>
+	<target name="init">
+		<mkdir dir="build/classes" />
+		<copy includeemptydirs="false" todir="build/classes">
+			<fileset dir="src">
+				<exclude name="**/*.launch" />
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+	</target>
+	<target name="clean">
+		<delete dir="build/classes" />
+	</target>
+	<target depends="clean" name="cleanall" />
+	<target depends="build-subprojects,build-project" name="build" />
+	<target name="build-subprojects" />
+	<target depends="init" name="build-project">
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<javac debug="true" debuglevel="${debuglevel}" destdir="build/classes" includeantruntime="false" source="${source}" target="${target}">
+			<src path="src" />
+			<classpath refid="LifeInsuranceManagement.classpath" />
+		</javac>
+		<jar destfile="${lifeinsurancemgmt.jar}" basedir="${build.home}/classes" />
+		<copy file="${lifeinsurancemgmt.jar}" todir="${webapp.home}/WEB-INF/lib" />
+	</target>
+	<target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects" />
+	<!-- ==================== WAR Target ===================================== -->
+	<target name="war1" description="Bundles the application as a WAR file" depends="clean, build">
+		<mkdir dir="WebContent/WEB-INF/classes" />
+
+		<copy includeemptydirs="false" todir="WebContent/WEB-INF/classes">
+			<fileset dir="build/classes">
+				<include name="**/*.class" />
+			</fileset>
+		</copy>
+
+		<war destfile="${app.name}.war" basedir="WebContent" needxmlfile="false">
+		</war>
+	</target>
+
+	<target name="war" depends="build-project" description="Create a WAR file for deployment">
+		<echo>Building Life Insurance Management war file...</echo>
+		<mkdir dir="${war.home}" />
+		<war warfile="${war.home}/${app.name}.war" webxml="${webapp.home}/WEB-INF/web.xml">
+			<fileset dir="${webapp.home}" excludes="WEB-INF/web.xml" />
+		</war>
+	</target>
+
+
+
+	<!-- ==================== Deploy Localhost Target ================================== -->
+	<target name="deploy-localhost" depends="build-project" description="Deploy LifeInsuranceManagement to localhost">
+		<copy todir="${deploy.localhost}">
+			<fileset dir="${webapp.home}" excludes="*.war" />
+		</copy>
+	</target>
+
+	<!-- ==================== Remove BookMyDoc from Server ================================== -->
+	<target name="undeploy" description="Remove LifeInsuranceManagement from web server">
+		<delete dir="${deploy.localhost}/${app.name}" />
+		<delete file="${deploy.localhost}/${app.name}.war" />
+	</target>
+
+	<!-- ==================== Deploy Localhost WAR Target ================================== -->
+	<target name="deploy-war" depends="war" description="Deploy LifeInsuranceManagement to localhost using a war file">
+		<copy todir="${deploy.localhost}" file="${war.home}/${app.name}.war" />
+	</target>
+</project>
